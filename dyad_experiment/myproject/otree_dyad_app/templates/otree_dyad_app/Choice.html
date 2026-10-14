@@ -1,0 +1,116 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <div class="trial-content">
+  {% if is_practice %}
+    <h3>Practice Round {{ practice_round_number }} of {{ practice_round_total }}</h3>
+  {% else %}
+    <h3>Round {{ round_number }} / {{ max_rounds }}</h3>
+  {% endif %}
+  <p><strong>You are Player {{ player.id_in_group }}.</strong></p>
+  <p>Choose Red or Black. Current tokens: {{ tokens }}</p>
+
+  <form method="post">
+    {{ csrf_input|safe }}
+    <input id="no-response-choice" type="hidden" name="choice" value="NoResponse">
+    <style>
+      body, html { font-size: 20px; }
+      .otree-timer { display: none; }
+      .trial-content { padding-top: 135px; }
+      .debug-info { margin-top: 100vh !important; }
+      .choice-row{display:flex; gap:12px; margin-top:12px}
+      .choice{flex:1; padding:18px; font-size:1.1rem; color:white; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; gap:10px}
+      .choice input{width:18px; height:18px; accent-color:#1c7cd6; cursor:pointer}
+      .choice.red{background:#d9534f}
+      .choice.black{background:#222}
+      .payoff-table{margin-top:16px; border-collapse:collapse; font-size:1rem}
+      .payoff-table th,.payoff-table td{border:1px solid #ccc; padding:6px 8px}
+      .payoff-heading{margin-top:28px}
+      .action-row{display:block; margin-top:12px}
+      .continue-wrap{display:flex; justify-content:center; margin-top:0}
+      .continue-btn{font-size:1.1rem; padding:10px 22px; cursor:pointer}
+      .trial-timer{display:inline-block; margin:0; padding:7px 12px; color:#58636f; background:#f2f4f6; border-radius:14px; font-size:1rem; font-weight:500; text-align:center}
+      .trial-timer-note{margin:4px 0 0; color:#555; font-size:.95rem; text-align:center}
+      .retry-warning{max-width:620px; margin:12px auto 0; padding:14px 18px; color:#604b16; background:#fff8df; border:1px solid #e4cc77; border-radius:8px; text-align:center}
+      @media (max-width:900px){.trial-content{padding-top:88px}}
+    </style>
+
+    <div class="choice-row">
+      <label class="choice red">
+        <input type="radio" name="choice" value="Red">
+        <span>Red</span>
+      </label>
+      <label class="choice black">
+        <input type="radio" name="choice" value="Black">
+        <span>Black</span>
+      </label>
+    </div>
+
+    <div class="action-row">
+      <div class="continue-wrap">
+        <div>
+          <div id="trial-timer-area">
+            <p class="trial-timer">This trial will end in <span id="trial-seconds">4</span> seconds.</p>
+            <p class="trial-timer-note">Your current choice will submit automatically. If either participant does not respond, the trial will be retried.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="retry-warning" class="retry-warning" hidden role="alert">
+      <strong>Warning.</strong> At least one participant failed to respond. This trial will be retried.
+    </div>
+
+    <h4 class="payoff-heading">Payoff table (reference)</h4>
+    <table class="payoff-table">
+      <tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr>
+      <tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr>
+      <tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr>
+    </table>
+    <p style="font-size:1em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
+  </form>
+  </div>
+
+  <script>
+    (function () {
+      const timerDisplay = document.getElementById('trial-seconds');
+      const timerArea = document.getElementById('trial-timer-area');
+      const retryWarning = document.getElementById('retry-warning');
+      const noResponseInput = document.getElementById('no-response-choice');
+      const form = document.getElementById('form');
+      const deadline = performance.now() + 4000;
+      let decisionSent = false;
+
+      document.querySelectorAll('input[type="radio"][name="choice"]').forEach(function (input) {
+        input.addEventListener('change', function () {
+          noResponseInput.disabled = true;
+        });
+      });
+
+      function updateTimer() {
+        const remaining = Math.max(0, deadline - performance.now());
+        timerDisplay.textContent = Math.ceil(remaining / 1000).toString();
+        if (remaining > 0) {
+          window.requestAnimationFrame(updateTimer);
+        } else if (!decisionSent) {
+          decisionSent = true;
+          document.querySelector('.choice-row').style.pointerEvents = 'none';
+          const selected = document.querySelector('input[type="radio"][name="choice"]:checked');
+          liveSend({ choice: selected ? selected.value : null });
+        }
+      }
+
+      window.liveRecv = function (data) {
+        if (data.retry) {
+          timerArea.hidden = true;
+          retryWarning.hidden = false;
+          window.setTimeout(function () { window.location.reload(); }, 3000);
+        } else if (data.success) {
+          form.submit();
+        }
+      };
+
+      updateTimer();
+    }());
+  </script>
+{% endblock %}

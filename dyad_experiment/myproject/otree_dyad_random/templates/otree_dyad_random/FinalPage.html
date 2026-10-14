@@ -1,0 +1,9 @@
+{% extends "global/Base.html" %}
+{% block content %}
+  <style>.debug-info { margin-top: 100vh !important; }</style>
+  <div style="max-width:650px;margin:0 auto;padding:24px">
+    {% if game_ended_by_tokens %}<h3>Player {{ loser_number }} has run out of tokens.</h3>{% else %}<h3>The game has ended.</h3>{% endif %}
+    <p><strong>Your final token total is {{ final_payment }}.</strong></p>
+    <p>Thank you for participating.</p>
+  </div>
+{% endblock %}

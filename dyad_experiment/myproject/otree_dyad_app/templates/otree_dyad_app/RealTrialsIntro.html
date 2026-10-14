@@ -1,0 +1,21 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .intro-box { max-width: 700px; margin: 0 auto; padding: 24px; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 20px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <div class="intro-box">
+    <h3>Now we will start the Real Trials.</h3>
+    <p><strong>Both players’ token totals will now reset to 20.</strong></p>
+    <p>Press continue to start.</p>
+
+    <div class="continue-wrap">
+      <button type="submit" class="continue-btn">Continue</button>
+    </div>
+  </div>
+{% endblock %}

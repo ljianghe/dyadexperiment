@@ -1,0 +1,188 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 20px; }
+    .otree-timer { display: none; }
+    .trial-content { padding-top: 112px; }
+    .debug-info { margin-top: 100vh !important; }
+    .randomizer { position: fixed; right: 12px; bottom: 12px; z-index: 10; width: 210px; padding: 12px; text-align: center; background: #f3f6f8; border: 1px solid #ccd5dc; border-radius: 7px; box-shadow: 0 2px 8px rgba(0,0,0,.14); }
+    .randomizer p { margin: 2px 0 5px; font-size: .85rem; line-height: 1.25; }
+    .coin-stage { height: 92px; display: flex; align-items: center; justify-content: center; perspective: 700px; }
+    .coin { width: 80px; height: 80px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 3px ridge #899198; border-radius: 50%; color: white; background: linear-gradient(135deg, #d9534f 0 49%, #171717 51% 100%); box-shadow: inset 5px 6px 8px rgba(255,255,255,.24), inset -6px -7px 9px rgba(0,0,0,.32); filter: drop-shadow(0 5px 4px rgba(0,0,0,.25)); font-size: .78rem; font-weight: bold; letter-spacing: 0; transform-style: preserve-3d; }
+    .coin.show-red { background: radial-gradient(circle at 35% 28%, #ffaaa7 0 3%, #e35d59 20%, #b82d29 75%, #8e1c19 100%); }
+    .coin.show-black { background: radial-gradient(circle at 35% 28%, #737373 0 3%, #2e2e2e 25%, #111 75%, #000 100%); }
+    .coin.flipping-red { animation: land-red .25s cubic-bezier(.18,.75,.28,1) forwards; }
+    .coin.flipping-black { animation: land-black .25s cubic-bezier(.18,.75,.28,1) forwards; }
+    @keyframes land-red { 0%{transform:translateY(0) rotateY(0)} 42%{transform:translateY(-28px) rotateY(650deg) rotateZ(8deg)} 78%{transform:translateY(5px) rotateY(1290deg) rotateZ(-3deg)} 100%{transform:translateY(0) rotateY(1440deg)} }
+    @keyframes land-black { 0%{transform:translateY(0) rotateY(0)} 42%{transform:translateY(-28px) rotateY(730deg) rotateZ(8deg)} 78%{transform:translateY(5px) rotateY(1460deg) rotateZ(-3deg)} 100%{transform:translateY(0) rotateY(1620deg)} }
+    @media (prefers-reduced-motion: reduce) { .coin.flipping-red, .coin.flipping-black { animation-duration: .01ms; } }
+    .flip-btn { font-size: .9rem; padding: 5px 10px; cursor: pointer; }
+    .flip-btn:disabled { opacity: .7; cursor: default; }
+    .flip-result { min-height: 1.1em; margin: 4px 0 0; font-size: .85rem; }
+    @media (max-width: 900px) {
+      .randomizer { right: 6px; bottom: 6px; width: 195px; max-width: calc(100% - 12px); }
+      .trial-content { padding-top: 72px; }
+    }
+    .choice-row { display: flex; gap: 12px; margin-top: 12px; }
+    .choice { flex: 1; padding: 18px; font-size: 1.1rem; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+    .choice input { width: 18px; height: 18px; accent-color: #1c7cd6; cursor: pointer; }
+    .choice.red { background: #d9534f; }
+    .choice.black { background: #222; }
+    .action-row { display: block; margin-top: 12px; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 0; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+    .trial-timer { display: inline-block; margin: 0; padding: 7px 12px; color: #58636f; background: #f2f4f6; border-radius: 14px; font-size: 1rem; font-weight: 500; text-align: center; }
+    .trial-timer-note { margin: 4px 0 0; color: #555; font-size: .95rem; text-align: center; }
+    .retry-warning { max-width: 620px; margin: 12px auto 0; padding: 14px 18px; color: #604b16; background: #fff8df; border: 1px solid #e4cc77; border-radius: 8px; text-align: center; }
+    .payoff-table { margin-top: 16px; border-collapse: collapse; }
+    .payoff-table th, .payoff-table td { border: 1px solid #ccc; padding: 6px 8px; }
+    .payoff-heading { margin-top: 28px; }
+  </style>
+
+  <div class="trial-content">
+    {% if is_practice %}
+      <h3>Practice Round {{ practice_round_number }} of {{ practice_round_total }}</h3>
+    {% else %}
+      <h3>Round {{ round_number }} / {{ max_rounds }}</h3>
+    {% endif %}
+    <p><strong>You are Player {{ player.id_in_group }}.</strong></p>
+    <p>Choose Red or Black. Current tokens: {{ tokens }}</p>
+
+    <form method="post">
+    {{ csrf_input|safe }}
+
+    <input id="no-response-choice" type="hidden" name="choice" value="NoResponse">
+    <input id="randomizer-used" type="hidden" name="{{ randomizer_used_field }}" value="False">
+    <input id="randomizer-result" type="hidden" name="{{ randomizer_result_field }}" value="">
+    <div class="choice-row">
+      <label class="choice red"><input type="radio" name="choice" value="Red"><span>Red</span></label>
+      <label class="choice black"><input type="radio" name="choice" value="Black"><span>Black</span></label>
+    </div>
+
+    <div class="action-row">
+      <div class="continue-wrap">
+        <div>
+          <div id="trial-timer-area">
+            <p class="trial-timer">This trial will end in <span id="trial-seconds">4</span> seconds.</p>
+            <p class="trial-timer-note">Your current choice will submit automatically. If either participant does not respond, the trial will be retried.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="randomizer">
+        <p><strong>Optional randomization device</strong></p>
+        <p>You may use it once a trial to help you make a decision.</p>
+        <div class="coin-stage" aria-hidden="true">
+          <div id="coin" class="coin">RED / BLACK</div>
+        </div>
+        <button id="flip-button" type="button" class="flip-btn">Flip a coin</button>
+        <p id="flip-result" class="flip-result" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div id="retry-warning" class="retry-warning" hidden role="alert">
+      <strong>Warning.</strong> At least one participant failed to respond. This trial will be retried.
+    </div>
+
+    <h4 class="payoff-heading">Payoff table (reference)</h4>
+    <table class="payoff-table">
+      <tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr>
+      <tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr>
+      <tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr>
+    </table>
+    <p style="font-size:1em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
+    </form>
+  </div>
+
+  <script>
+      (function () {
+        const timerDisplay = document.getElementById('trial-seconds');
+        const timerArea = document.getElementById('trial-timer-area');
+        const retryWarning = document.getElementById('retry-warning');
+        const noResponseInput = document.getElementById('no-response-choice');
+        const form = document.getElementById('form');
+        const flipButton = document.getElementById('flip-button');
+        const deadline = performance.now() + 4000;
+        let decisionSent = false;
+
+        document.querySelectorAll('input[type="radio"][name="choice"]').forEach(function (input) {
+          input.addEventListener('change', function () {
+            noResponseInput.disabled = true;
+          });
+        });
+
+        function updateTimer() {
+          const remaining = Math.max(0, deadline - performance.now());
+          timerDisplay.textContent = Math.ceil(remaining / 1000).toString();
+          if (remaining > 0) {
+            window.requestAnimationFrame(updateTimer);
+          } else if (!decisionSent) {
+            decisionSent = true;
+            document.querySelector('.choice-row').style.pointerEvents = 'none';
+            flipButton.disabled = true;
+            const selected = document.querySelector('input[type="radio"][name="choice"]:checked');
+            liveSend({ choice: selected ? selected.value : null });
+          }
+        }
+
+        window.liveRecv = function (data) {
+          if (data.retry) {
+            timerArea.hidden = true;
+            retryWarning.hidden = false;
+            window.setTimeout(function () { window.location.reload(); }, 3000);
+          } else if (data.success) {
+            form.submit();
+          }
+        };
+
+        updateTimer();
+      }());
+
+      (function () {
+        const outcome = '{{ randomizer_outcome }}';
+        const coin = document.getElementById('coin');
+        const button = document.getElementById('flip-button');
+        const display = document.getElementById('flip-result');
+        const usedInput = document.getElementById('randomizer-used');
+        const resultInput = document.getElementById('randomizer-result');
+        let faceTimer;
+
+        function setCoinFace(color) {
+          coin.classList.remove('show-red', 'show-black');
+          coin.classList.add(color === 'Red' ? 'show-red' : 'show-black');
+          coin.textContent = color.toUpperCase();
+        }
+
+        function animateCoinFaces() {
+          const startedAt = performance.now();
+          let showBlack = false;
+          function changeFace() {
+            const elapsed = performance.now() - startedAt;
+            if (elapsed >= 1250) return;
+            showBlack = !showBlack;
+            setCoinFace(showBlack ? 'Black' : 'Red');
+            faceTimer = window.setTimeout(changeFace, 65 + (elapsed * .07));
+          }
+          faceTimer = window.setTimeout(changeFace, 55);
+        }
+
+        button.addEventListener('click', function () {
+          usedInput.value = 'True';
+          resultInput.value = outcome;
+          button.disabled = true;
+          button.textContent = 'Flipping...';
+          animateCoinFaces();
+          coin.classList.add(outcome === 'Red' ? 'flipping-red' : 'flipping-black');
+        });
+
+        coin.addEventListener('animationend', function () {
+          window.clearTimeout(faceTimer);
+          coin.classList.remove('flipping-red', 'flipping-black');
+          setCoinFace(outcome);
+          display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+          button.textContent = 'Coin flipped';
+        });
+      }());
+  </script>
+{% endblock %}

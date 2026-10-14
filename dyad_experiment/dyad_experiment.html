@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dyad Two-Button Zero-Sum Experiment (Bare Bones)</title>
+  <style>
+    body{font-family: Arial, Helvetica, sans-serif; padding:20px;}
+    .panel{display:inline-block; width:45%; vertical-align:top; margin:1%}
+    .bigbtn{font-size:20px; padding:12px 20px; margin:6px; width:140px}
+    .status{margin:8px 0}
+    #log{width:100%; height:160px}
+    .center{display:block; text-align:center}
+  </style>
+</head>
+<body>
+  <h1>Dyad Two-Button Zero-Sum Experiment (Bare Bones)</h1>
+  <p>Two players (local test): each chooses <strong>Red</strong> or <strong>Black</strong> every trial. Start tokens: 10. Max trials: 150. Game ends when trials exhausted or a player reaches 0 tokens.</p>
+
+  <div class="status">
+    <strong>Trial:</strong> <span id="trialDisplay">0</span> / <span id="maxTrials">150</span>
+    &nbsp;&nbsp; <strong>Player 1 tokens:</strong> <span id="p1tokens">10</span>
+    &nbsp;&nbsp; <strong>Player 2 tokens:</strong> <span id="p2tokens">10</span>
+  </div>
+
+  <button id="startBtn">Start Experiment</button>
+  <button id="downloadBtn" disabled>Download CSV</button>
+
+  <div style="margin-top:18px">
+    <div class="panel">
+      <h3>Player 1</h3>
+      <button id="p1red" class="bigbtn" style="background:#d9534f;color:white" disabled>Red</button>
+      <button id="p1black" class="bigbtn" style="background:#222;color:white" disabled>Black</button>
+      <div class="status"><strong>Choice:</strong> <span id="p1choice">—</span></div>
+    </div>
+    <div class="panel">
+      <h3>Player 2</h3>
+      <button id="p2red" class="bigbtn" style="background:#d9534f;color:white" disabled>Red</button>
+      <button id="p2black" class="bigbtn" style="background:#222;color:white" disabled>Black</button>
+      <div class="status"><strong>Choice:</strong> <span id="p2choice">—</span></div>
+    </div>
+  </div>
+
+  <h3>Current Trial Log</h3>
+  <textarea id="log" readonly></textarea>
+
+  <script src="dyad_experiment.js"></script>
+</body>
+</html>

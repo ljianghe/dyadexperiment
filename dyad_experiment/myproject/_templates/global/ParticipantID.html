@@ -1,0 +1,27 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .participant-id-card { max-width: 520px; margin: 90px auto 0; padding: 28px; border: 1px solid #d7dde2; border-radius: 10px; background: #fff; box-shadow: 0 3px 14px rgba(0,0,0,.08); }
+    .participant-id-card h2 { margin-top: 0; }
+    .participant-id-card label { display: block; margin-bottom: 7px; font-weight: 600; }
+    .participant-id-input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #aeb7bf; border-radius: 6px; font-size: 1rem; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 20px; }
+    .continue-btn { padding: 10px 24px; font-size: 1rem; cursor: pointer; }
+  </style>
+
+  <div class="participant-id-card">
+    <h2>Participant ID</h2>
+    <p>Please enter your participant ID before beginning the experiment.</p>
+    <form method="post">
+      {{ csrf_input|safe }}
+      <label for="study-participant-id">Participant ID</label>
+      <input id="study-participant-id" class="participant-id-input" type="text" name="study_participant_id" required autocomplete="off" autofocus>
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Continue</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

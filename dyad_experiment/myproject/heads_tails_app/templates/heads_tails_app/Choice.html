@@ -1,0 +1,61 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 20px; }
+    .trial-content { padding-top: 135px; }
+    .debug-info { margin-top: 100vh !important; }
+    .choice-row { display: flex; gap: 12px; margin-top: 12px; }
+    .choice { flex: 1; padding: 18px; font-size: 1.1rem; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .choice input { width: 18px; height: 18px; accent-color: #1c7cd6; cursor: pointer; }
+    .choice.heads { background: #1d6fa5; }
+    .choice.tails { background: #5d5d5d; }
+    .action-row { display: block; margin-top: 12px; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 0; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+    @media (max-width: 900px) {
+      .trial-content { padding-top: 88px; }
+    }
+  </style>
+
+  <div class="trial-content">
+    <h3>Round {{ round_number }} of {{ max_rounds }}</h3>
+    <p>Select your response for this round.</p>
+
+    <form method="post">
+      {{ csrf_input|safe }}
+      <input id="response-time-ms" type="hidden" name="response_time_ms" value="">
+
+      <div class="choice-row">
+        <label class="choice heads">
+          <input type="radio" name="choice" value="Heads">
+          <span>Heads</span>
+        </label>
+        <label class="choice tails">
+          <input type="radio" name="choice" value="Tails">
+          <span>Tails</span>
+        </label>
+      </div>
+
+      <div class="action-row">
+        <div class="continue-wrap">
+          <button type="submit" class="continue-btn">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const startedAt = performance.now();
+      const form = document.getElementById('form');
+      const responseTimeInput = document.getElementById('response-time-ms');
+
+      if (form && responseTimeInput) {
+        form.addEventListener('submit', function () {
+          responseTimeInput.value = Math.max(0, Math.round(performance.now() - startedAt));
+        });
+      }
+    }());
+  </script>
+{% endblock %}

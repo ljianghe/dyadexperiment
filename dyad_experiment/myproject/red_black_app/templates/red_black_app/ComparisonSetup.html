@@ -1,0 +1,35 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .setup-box { max-width: 680px; margin: 70px auto 0; padding: 24px; border: 1px solid #ccd5dc; border-radius: 8px; background: #f7f9fa; }
+    .field { margin: 18px 0; }
+    .field label { display: block; margin-bottom: 6px; font-weight: 600; }
+    .field input { width: 100%; max-width: 360px; padding: 8px; font-size: 1rem; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 24px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <div class="setup-box">
+    <h3>Experimenter setup</h3>
+    <p>Enter the ID of the historical Condition S participant whose choices will be used for this participant.</p>
+    <p>For IDs 118826 and 114472, also enter entry number 1 or 2. Leave the entry number blank for every other ID.</p>
+
+    <form method="post">
+      {{ csrf_input|safe }}
+      <div class="field">
+        <label for="comparison-id">Historical participant ID</label>
+        <input id="comparison-id" name="comparison_id" type="text" required autofocus>
+      </div>
+      <div class="field">
+        <label for="comparison-entry">Entry number (only for a duplicate ID)</label>
+        <input id="comparison-entry" name="comparison_entry" type="number" min="1" max="2">
+      </div>
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Continue to instructions</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

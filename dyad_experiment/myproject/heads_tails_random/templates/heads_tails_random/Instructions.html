@@ -1,0 +1,25 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .instructions { max-width: 850px; margin: 0 auto; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 24px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <div class="instructions">
+    <h3>Instructions</h3>
+    <p>Simulate the random outcome of tossing a fair coin 150 times in succession.</p>
+    <p>On each round, you may use the optional fair coin-flip device before choosing Heads or Tails. You do not have to use it, and its result does not automatically select your response.</p>
+    <p>Click Continue to start the trials.</p>
+
+    <form method="post">
+      {{ csrf_input|safe }}
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Continue</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

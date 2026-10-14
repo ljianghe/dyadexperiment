@@ -1,0 +1,26 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .final-box { max-width: 650px; margin: 0 auto; padding: 24px; }
+    .note { margin-top: 18px; font-size: 1.05rem; }
+  </style>
+
+  <div class="final-box">
+    {% if game_ended_by_tokens %}
+      <h3>Player {{ loser_number }} has run out of tokens.</h3>
+      <p class="note">The game has ended.</p>
+    {% else %}
+      <h3>The game has ended.</h3>
+    {% endif %}
+
+    <p class="note"><strong>Your final payment is X</strong></p>
+    <p class="note">Thank you for participating.</p>
+
+    {% if game_ended_by_tokens %}
+      <p class="note">You have earned X dollars.</p>
+    {% endif %}
+  </div>
+{% endblock %}

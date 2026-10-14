@@ -1,0 +1,10 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>.debug-info { margin-top: 100vh !important; }</style>
+  <div style="max-width:650px;margin:70px auto 0;padding:24px;text-align:center">
+    <h3>Experiment finished.</h3>
+    <p><strong>You have {{ final_tokens }} tokens.</strong></p>
+    <p>Please contact your experimenter.</p>
+  </div>
+{% endblock %}

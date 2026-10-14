@@ -1,0 +1,191 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 20px; }
+    .trial-content { padding-top: 112px; }
+    .debug-info { margin-top: 100vh !important; }
+    .randomizer { position: fixed; right: 12px; bottom: 12px; z-index: 10; width: 210px; padding: 12px; text-align: center; background: #f3f6f8; border: 1px solid #ccd5dc; border-radius: 7px; box-shadow: 0 2px 8px rgba(0,0,0,.14); }
+    .randomizer p { margin: 2px 0 5px; font-size: .85rem; line-height: 1.25; }
+    .coin-stage { height: 92px; display: flex; align-items: center; justify-content: center; perspective: 700px; }
+    .coin {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      transform-style: preserve-3d;
+      filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.28));
+    }
+    .coin-face {
+      position: absolute;
+      inset: 0;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px ridge #7d878e;
+      border-radius: 50%;
+      backface-visibility: hidden;
+      color: #30383e;
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      font-weight: bold;
+      text-shadow: 0 1px 0 #ffffff;
+      background:
+        radial-gradient(circle at 34% 28%, rgba(255,255,255,0.85) 0 4%, transparent 5%),
+        radial-gradient(circle at 38% 35%, #f8fbfc 0, #cbd2d7 48%, #7a858d 78%, #e8edf0 100%);
+      box-shadow:
+        inset 0 0 0 3px #edf2f5,
+        inset 0 0 0 7px #737d84,
+        inset 8px 9px 12px rgba(255,255,255,0.35),
+        inset -8px -9px 12px rgba(35,43,48,0.32);
+    }
+    .coin-face::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px dotted rgba(48, 57, 63, 0.55);
+      border-radius: 50%;
+    }
+    .coin-heads { transform: rotateY(0deg) translateZ(2px); }
+    .coin-tails { transform: rotateY(180deg) translateZ(2px); }
+    .coin.landed-heads { transform: rotateY(0deg); }
+    .coin.landed-tails { transform: rotateY(180deg); }
+    .coin.flipping-heads { animation: land-heads .25s cubic-bezier(.18,.75,.28,1) forwards; }
+    .coin.flipping-tails { animation: land-tails .25s cubic-bezier(.18,.75,.28,1) forwards; }
+    @keyframes land-heads {
+      0% { transform: translateY(0) rotateY(var(--start-angle, 0deg)) rotateZ(0deg); }
+      42% { transform: translateY(-28px) rotateY(650deg) rotateZ(8deg); }
+      78% { transform: translateY(5px) rotateY(1290deg) rotateZ(-3deg); }
+      100% { transform: translateY(0) rotateY(1440deg) rotateZ(0deg); }
+    }
+    @keyframes land-tails {
+      0% { transform: translateY(0) rotateY(var(--start-angle, 0deg)) rotateZ(0deg); }
+      42% { transform: translateY(-28px) rotateY(730deg) rotateZ(8deg); }
+      78% { transform: translateY(5px) rotateY(1460deg) rotateZ(-3deg); }
+      100% { transform: translateY(0) rotateY(1620deg) rotateZ(0deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .coin.flipping-heads, .coin.flipping-tails { animation-duration: 0.01ms; }
+    }
+    .flip-btn { font-size: .9rem; padding: 5px 10px; cursor: pointer; }
+    .flip-btn:disabled { cursor: default; opacity: 0.7; }
+    .flip-result { min-height: 1.1em; margin: 4px 0 0; font-size: .85rem; }
+    @media (max-width: 900px) {
+      .randomizer { right: 6px; bottom: 6px; width: 195px; max-width: calc(100% - 12px); }
+      .trial-content { padding-top: 72px; }
+    }
+    .choice-row { display: flex; gap: 12px; margin-top: 12px; }
+    .choice { flex: 1; padding: 18px; font-size: 1.1rem; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .choice input { width: 18px; height: 18px; accent-color: #1c7cd6; cursor: pointer; }
+    .choice.heads { background: #1d6fa5; }
+    .choice.tails { background: #5d5d5d; }
+    .action-row { display: block; margin-top: 12px; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 0; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <div class="trial-content">
+    <h3>Round {{ round_number }} of {{ max_rounds }}</h3>
+    <p>Select your response for this round.</p>
+
+    <form method="post">
+    {{ csrf_input|safe }}
+    <input id="response-time-ms" type="hidden" name="response_time_ms" value="">
+    <input id="randomizer-used" type="hidden" name="randomizer_used" value="False">
+    <input id="randomizer-result" type="hidden" name="randomizer_result" value="">
+
+    <div class="choice-row">
+      <label class="choice heads">
+        <input type="radio" name="choice" value="Heads">
+        <span>Heads</span>
+      </label>
+      <label class="choice tails">
+        <input type="radio" name="choice" value="Tails">
+        <span>Tails</span>
+      </label>
+    </div>
+
+    <div class="action-row">
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Submit</button>
+      </div>
+
+      <div class="randomizer">
+        <p><strong>Optional randomization device</strong></p>
+        <p>You may use it once a trial to help you make a decision.</p>
+        <div class="coin-stage" aria-hidden="true">
+          <div id="coin" class="coin {% if initial_coin_face == 'Tails' %}landed-tails{% else %}landed-heads{% endif %}">
+            <div class="coin-face coin-heads">H</div>
+            <div class="coin-face coin-tails">T</div>
+          </div>
+        </div>
+        <button id="flip-button" type="button" class="flip-btn">Flip a coin</button>
+        <p id="flip-result" class="flip-result" aria-live="polite"></p>
+      </div>
+    </div>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      const outcome = '{{ randomizer_outcome }}';
+      const coin = document.getElementById('coin');
+      const button = document.getElementById('flip-button');
+      const display = document.getElementById('flip-result');
+      const usedInput = document.getElementById('randomizer-used');
+      const resultInput = document.getElementById('randomizer-result');
+      const responseTimeInput = document.getElementById('response-time-ms');
+      const form = document.getElementById('form');
+      const startedAt = performance.now();
+      const initialFace = '{{ initial_coin_face }}';
+      let flipFinished = false;
+      let flipFallbackTimer;
+
+      if (form && responseTimeInput) {
+        form.addEventListener('submit', function () {
+          responseTimeInput.value = Math.max(0, Math.round(performance.now() - startedAt));
+        });
+      }
+
+      function showLandedFace(face) {
+        const letter = face === 'Tails' ? 'T' : 'H';
+        coin.querySelectorAll('.coin-face').forEach(function (coinFace) {
+          coinFace.textContent = letter;
+        });
+      }
+
+      function restorePhysicalFaces() {
+        coin.querySelector('.coin-heads').textContent = 'H';
+        coin.querySelector('.coin-tails').textContent = 'T';
+      }
+
+      function finishFlip() {
+        if (flipFinished) return;
+        flipFinished = true;
+        window.clearTimeout(flipFallbackTimer);
+        coin.classList.remove('flipping-heads', 'flipping-tails');
+        coin.classList.add(outcome === 'Heads' ? 'landed-heads' : 'landed-tails');
+        showLandedFace(outcome);
+        display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+        button.textContent = 'Coin flipped';
+      }
+
+      showLandedFace(initialFace);
+
+      button.addEventListener('click', function () {
+        const startsOnTails = coin.classList.contains('landed-tails');
+        coin.style.setProperty('--start-angle', startsOnTails ? '180deg' : '0deg');
+        restorePhysicalFaces();
+        coin.classList.remove('landed-heads', 'landed-tails');
+        usedInput.value = 'True';
+        resultInput.value = outcome;
+        button.disabled = true;
+        button.textContent = 'Flipping...';
+        coin.classList.add(outcome === 'Heads' ? 'flipping-heads' : 'flipping-tails');
+        flipFallbackTimer = window.setTimeout(finishFlip, 300);
+      });
+
+      coin.addEventListener('animationend', finishFlip);
+    }());
+  </script>
+{% endblock %}

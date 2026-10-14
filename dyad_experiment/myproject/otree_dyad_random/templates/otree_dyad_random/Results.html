@@ -1,0 +1,56 @@
+{% extends "global/Base.html" %}
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .otree-timer { display: none; }
+    .results-text { font-size: 1.1rem; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 16px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+    .results-timer { display: inline-block; padding: 7px 12px; color: #58636f; background: #f2f4f6; border-radius: 14px; font-size: .9rem; }
+  </style>
+  {% if is_practice %}
+    <h3>Practice Results — Round {{ practice_round_number }} of {{ practice_round_total }}</h3>
+  {% else %}
+    <h3>Results — Round {{ round_number }} / {{ max_rounds }}</h3>
+  {% endif %}
+  {% if player_no_response %}
+    <p class="results-text"><strong>You did not respond in time and lost one token.</strong></p>
+  {% else %}
+    <p class="results-text"><strong>You chose:</strong> {{ you_chose }}</p>
+  {% endif %}
+  {% if other_no_response %}
+    <p class="results-text"><strong>Your opponent did not respond in time.</strong></p>
+  {% else %}
+    <p class="results-text"><strong>Your opponent chose:</strong> {{ other_chose }}</p>
+  {% endif %}
+  {% if not player_no_response %}
+    {% if round_payoff > 0 %}
+      <p class="results-text"><strong>You gained:</strong> {{ round_payoff }} token.</p>
+    {% elif round_payoff < 0 %}
+      <p class="results-text"><strong>You lost:</strong> {{ round_loss }} token.</p>
+    {% else %}
+      <p class="results-text"><strong>Round payoff:</strong> 0 tokens.</p>
+    {% endif %}
+  {% endif %}
+  <p class="results-text"><strong>Current tokens:</strong> {{ p_tokens }}</p>
+  {% if round_number >= max_rounds or p_tokens <= 0 or other_tokens <= 0 %}
+    <p><strong>Experiment finished.</strong></p>
+  {% endif %}
+  <p class="results-timer">Next trial will start in <span id="results-seconds">3</span> seconds.</p>
+
+  <script>
+    (function () {
+      const timerDisplay = document.getElementById('results-seconds');
+      const deadline = performance.now() + 3000;
+
+      function updateTimer() {
+        const remaining = Math.max(0, deadline - performance.now());
+        timerDisplay.textContent = Math.ceil(remaining / 1000).toString();
+        if (remaining > 0) window.requestAnimationFrame(updateTimer);
+      }
+
+      updateTimer();
+    }());
+  </script>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .practice-box{border:1px solid #ddd; border-radius:8px; padding:16px; margin-top:16px; background:#fafafa}
+    .payoff-table{margin-top:16px; border-collapse:collapse; font-size:1rem}
+    .payoff-table th,.payoff-table td{border:1px solid #ccc; padding:6px 8px}
+    .continue-wrap{display:flex; justify-content:center; margin-top:16px}
+    .continue-btn{font-size:1.1rem; padding:10px 22px; cursor:pointer}
+    .choice-row{display:flex; gap:12px; margin-top:12px}
+    .choice{flex:1; padding:18px; font-size:1.1rem; color:white; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; gap:10px}
+    .choice.red{background:#d9534f}
+    .choice.black{background:#222}
+    .choice input{width:18px; height:18px; accent-color:#1c7cd6; cursor:pointer}
+    .practice-round{margin-top:26px; padding-top:14px; border-top:1px solid #ddd}
+  </style>
+
+  <h3>Practice Trials</h3>
+  <p style="font-size:1.2rem;"><strong>You are Player {{ player.id_in_group }}.</strong></p>
+  <p>These practice rounds are the same as the real game. You will not be paid for these trials.</p>
+
+  <div class="practice-box">
+    {% if player.id_in_group == 1 %}
+      <p><strong>Example 1:</strong> If both players choose Red, then <strong>you gain 1 token</strong> and the other player loses 1 token.</p>
+      <p><strong>Example 2:</strong> If you choose Red and the other player chooses Black, then <strong>you lose 1 token</strong> and the other player gains 1 token.</p>
+      <p><strong>Example 3:</strong> If both players choose Black, then <strong>you gain 1 token</strong> and the other player loses 1 token.</p>
+    {% else %}
+      <p><strong>Example 1:</strong> If both players choose Red, then <strong>you lose 1 token</strong> and the other player gains 1 token.</p>
+      <p><strong>Example 2:</strong> If you choose Red and the other player chooses Black, then <strong>you gain 1 token</strong> and the other player loses 1 token.</p>
+      <p><strong>Example 3:</strong> If both players choose Black, then <strong>you lose 1 token</strong> and the other player gains 1 token.</p>
+    {% endif %}
+  </div>
+
+  <div style="margin-top:18px">
+    <h4>Payoff matrix</h4>
+    <table class="payoff-table">
+      <tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr>
+      <tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr>
+      <tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr>
+    </table>
+    <p style="font-size:0.9em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
+  </div>
+
+  <form method="post">
+    <div class="practice-round">
+      <h4>Practice Round 1 of 3</h4>
+      <div class="choice-row">
+        <label class="choice red">
+          <input type="radio" name="practice_choice_1" value="Red">
+          <span>Red</span>
+        </label>
+        <label class="choice black">
+          <input type="radio" name="practice_choice_1" value="Black">
+          <span>Black</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="practice-round">
+      <h4>Practice Round 2 of 3</h4>
+      <div class="choice-row">
+        <label class="choice red">
+          <input type="radio" name="practice_choice_2" value="Red">
+          <span>Red</span>
+        </label>
+        <label class="choice black">
+          <input type="radio" name="practice_choice_2" value="Black">
+          <span>Black</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="practice-round">
+      <h4>Practice Round 3 of 3</h4>
+      <div class="choice-row">
+        <label class="choice red">
+          <input type="radio" name="practice_choice_3" value="Red">
+          <span>Red</span>
+        </label>
+        <label class="choice black">
+          <input type="radio" name="practice_choice_3" value="Black">
+          <span>Black</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="continue-wrap">
+      <button type="submit" class="continue-btn">Submit</button>
+    </div>
+  </form>
+{% endblock %}

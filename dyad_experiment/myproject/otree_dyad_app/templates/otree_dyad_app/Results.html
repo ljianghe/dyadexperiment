@@ -1,0 +1,72 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .otree-timer { display: none; }
+    .debug-info { margin-top: 100vh !important; }
+    .results-text { font-size: 1.1rem; }
+    .continue-wrap{display:flex; justify-content:center; margin-top:16px}
+    .continue-btn{font-size:1.1rem; padding:10px 22px; cursor:pointer}
+    .results-timer{display:inline-block; padding:7px 12px; color:#58636f; background:#f2f4f6; border-radius:14px; font-size:.9rem}
+    .payoff-table{margin-top:16px; border-collapse:collapse; font-size:1rem}
+    .payoff-table th,.payoff-table td{border:1px solid #ccc; padding:6px 8px}
+  </style>
+
+  {% if is_practice %}
+    <h3>Practice Results — Round {{ practice_round_number }} of {{ practice_round_total }}</h3>
+  {% else %}
+    <h3>Results — Round {{ round_number }} / {{ max_rounds }}</h3>
+  {% endif %}
+  {% if player_no_response %}
+    <p class="results-text"><strong>You did not respond in time and lost one token.</strong></p>
+  {% else %}
+    <p class="results-text"><strong>You chose:</strong> {{ you_chose }}</p>
+  {% endif %}
+  {% if other_no_response %}
+    <p class="results-text"><strong>Your opponent did not respond in time.</strong></p>
+  {% else %}
+    <p class="results-text"><strong>Your opponent chose:</strong> {{ other_chose }}</p>
+  {% endif %}
+  {% if not player_no_response %}
+    {% if round_payoff > 0 %}
+      <p class="results-text"><strong>You gained:</strong> {{ round_payoff }} token.</p>
+    {% elif round_payoff < 0 %}
+      <p class="results-text"><strong>You lost:</strong> {{ round_loss }} token.</p>
+    {% else %}
+      <p class="results-text"><strong>Round payoff:</strong> 0 token.</p>
+    {% endif %}
+  {% endif %}
+  <p class="results-text"><strong>Current tokens:</strong> {{ p_tokens }}</p>
+
+  {% if round_number >= max_rounds or p_tokens <= 0 or other_tokens <= 0 %}
+    <p class="results-text"><strong>Experiment finished.</strong></p>
+  {% endif %}
+
+  <p class="results-timer">Next trial will start in <span id="results-seconds">3</span> seconds.</p>
+
+  <div style="margin-top:18px">
+    <h4>Payoff matrix</h4>
+    <table class="payoff-table">
+      <tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr>
+      <tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr>
+      <tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr>
+    </table>
+    <p style="font-size:0.9em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
+  </div>
+
+  <script>
+    (function () {
+      const timerDisplay = document.getElementById('results-seconds');
+      const deadline = performance.now() + 3000;
+
+      function updateTimer() {
+        const remaining = Math.max(0, deadline - performance.now());
+        timerDisplay.textContent = Math.ceil(remaining / 1000).toString();
+        if (remaining > 0) window.requestAnimationFrame(updateTimer);
+      }
+
+      updateTimer();
+    }());
+  </script>
+{% endblock %}
