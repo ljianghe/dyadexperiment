@@ -41,9 +41,12 @@ SESSION_CONFIGS = [
 
 ROOMS = [
     dict(
-        name='my_room',
-        display_name='My Lab Room',
-        # participant_label_file='_rooms/my_room_participants.txt', # Optional
+        name='room_1',
+        display_name='Room 1',
+    ),
+    dict(
+        name='room_2',
+        display_name='Room 2',
     ),
 ]
 
