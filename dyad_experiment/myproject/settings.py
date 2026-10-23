@@ -37,36 +37,72 @@ SESSION_CONFIGS = [
         num_demo_participants=1,
         app_sequence=['red_black_random'],
     ),
+    dict(
+        name='all_no_randomizer_dhr',
+        display_name='All 3 - No randomizer - Dyad, Heads/Tails, Red/Black',
+        num_demo_participants=2,
+        app_sequence=['otree_dyad_app', 'heads_tails_app', 'red_black_app'],
+    ),
+    dict(
+        name='all_randomizer_dhr',
+        display_name='All 3 - Randomizer - Dyad, Heads/Tails, Red/Black',
+        num_demo_participants=2,
+        app_sequence=['otree_dyad_random', 'heads_tails_random', 'red_black_random'],
+    ),
+    dict(
+        name='all_no_randomizer_hrd',
+        display_name='All 3 - No randomizer - Heads/Tails, Red/Black, Dyad',
+        num_demo_participants=2,
+        app_sequence=['heads_tails_app', 'red_black_app', 'otree_dyad_app'],
+    ),
+    dict(
+        name='all_randomizer_hrd',
+        display_name='All 3 - Randomizer - Heads/Tails, Red/Black, Dyad',
+        num_demo_participants=2,
+        app_sequence=['heads_tails_random', 'red_black_random', 'otree_dyad_random'],
+    ),
+    dict(
+        name='all_no_randomizer_rdh',
+        display_name='All 3 - No randomizer - Red/Black, Dyad, Heads/Tails',
+        num_demo_participants=2,
+        app_sequence=['red_black_app', 'otree_dyad_app', 'heads_tails_app'],
+    ),
+    dict(
+        name='all_randomizer_rdh',
+        display_name='All 3 - Randomizer - Red/Black, Dyad, Heads/Tails',
+        num_demo_participants=2,
+        app_sequence=['red_black_random', 'otree_dyad_random', 'heads_tails_random'],
+    ),
 ]
 
 ROOMS = [
     dict(
         name='room_1',
-        display_name='Room 1',
+        display_name='Room 1 - No randomizer - D, H/T, R/B',
     ),
     dict(
         name='room_2',
-        display_name='Room 2',
+        display_name='Room 2 - Randomizer - D, H/T, R/B',
     ),
     dict(
         name='room_3',
-        display_name='Room 3',
+        display_name='Room 3 - No randomizer - H/T, R/B, D',
     ),
     dict(
         name='room_4',
-        display_name='Room 4',
+        display_name='Room 4 - Randomizer - H/T, R/B, D',
     ),
     dict(
         name='room_5',
-        display_name='Room 5',
+        display_name='Room 5 - No randomizer - R/B, D, H/T',
     ),
     dict(
         name='room_6',
-        display_name='Room 6',
+        display_name='Room 6 - Randomizer - R/B, D, H/T',
     ),
     dict(
         name='room_7',
-        display_name='Room 7',
+        display_name='Room 7 - Pilot / Overflow',
     ),
 ]
 
