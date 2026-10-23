@@ -48,6 +48,26 @@ ROOMS = [
         name='room_2',
         display_name='Room 2',
     ),
+    dict(
+        name='room_3',
+        display_name='Room 3',
+    ),
+    dict(
+        name='room_4',
+        display_name='Room 4',
+    ),
+    dict(
+        name='room_5',
+        display_name='Room 5',
+    ),
+    dict(
+        name='room_6',
+        display_name='Room 6',
+    ),
+    dict(
+        name='room_7',
+        display_name='Room 7',
+    ),
 ]
 
 # if you set a property in SESSION_CONFIG_DEFAULTS, it will be inherited by all configs
