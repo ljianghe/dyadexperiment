@@ -3,8 +3,10 @@
 {% block content %}
   <style>.debug-info { margin-top: 100vh !important; }</style>
   <div style="max-width:650px;margin:70px auto 0;padding:24px;text-align:center">
-    <h3>Experiment finished.</h3>
-    <p><strong>You have {{ final_tokens }} tokens.</strong></p>
-    <p>Please contact your experimenter.</p>
+    <h3>Section complete.</h3>
+    <p>Your final token total is {{ final_tokens }}.</p>
+    <p><strong>In this section you earned ${{ section_earnings }}.</strong></p>
+    <p><strong>Your total current balance is ${{ total_current_balance }}.</strong></p>
+    {{ next_button }}
   </div>
 {% endblock %}

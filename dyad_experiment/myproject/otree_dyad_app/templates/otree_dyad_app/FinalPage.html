@@ -9,18 +9,13 @@
   </style>
 
   <div class="final-box">
+    <h3>Section complete.</h3>
     {% if game_ended_by_tokens %}
-      <h3>Player {{ loser_number }} has run out of tokens.</h3>
-      <p class="note">The game has ended.</p>
-    {% else %}
-      <h3>The game has ended.</h3>
+      <p class="note">Player {{ loser_number }} has run out of tokens.</p>
     {% endif %}
-
-    <p class="note"><strong>Your final payment is X</strong></p>
-    <p class="note">Thank you for participating.</p>
-
-    {% if game_ended_by_tokens %}
-      <p class="note">You have earned X dollars.</p>
-    {% endif %}
+    <p class="note">Your final token total is {{ final_tokens }}.</p>
+    <p class="note"><strong>In this section you earned ${{ section_earnings }}.</strong></p>
+    <p class="note"><strong>Your total current balance is ${{ total_current_balance }}.</strong></p>
+    {{ next_button }}
   </div>
 {% endblock %}

@@ -376,12 +376,25 @@ class FinalPage(Page):
 
     def vars_for_template(self):
         player = self
+        final_tokens = player.participant.vars.get('tokens', player.tokens)
+        section_earnings_cents = int(final_tokens) * 10
+        balance_key = 'dyad_random_section_balance_recorded'
+        if not player.participant.vars.get(balance_key):
+            player.participant.vars['total_balance_cents'] = (
+                player.participant.vars.get('total_balance_cents', 0)
+                + section_earnings_cents
+            )
+            player.participant.vars[balance_key] = True
+        total_balance_cents = player.participant.vars.get('total_balance_cents', 0)
         loser = next((
             p.id_in_group for p in self.group.get_players()
             if p.participant.vars.get('tokens', p.tokens) <= 0
         ), None)
         return {
-            'final_payment': player.participant.vars.get('tokens', player.tokens),
+            'final_payment': final_tokens,
+            'final_tokens': final_tokens,
+            'section_earnings': f'{section_earnings_cents / 100:.2f}',
+            'total_current_balance': f'{total_balance_cents / 100:.2f}',
             'player_number': player.id_in_group,
             'loser_number': loser,
             'game_ended_by_tokens': loser is not None,

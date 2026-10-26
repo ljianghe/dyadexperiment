@@ -592,6 +592,16 @@ class FinalPage(Page):
         p = self
         final_payment = p.participant.vars.get('tokens', getattr(p, 'tokens', 0))
 
+        section_earnings_cents = int(final_payment) * 10
+        balance_key = 'dyad_section_balance_recorded'
+        if not p.participant.vars.get(balance_key):
+            p.participant.vars['total_balance_cents'] = (
+                p.participant.vars.get('total_balance_cents', 0)
+                + section_earnings_cents
+            )
+            p.participant.vars[balance_key] = True
+        total_balance_cents = p.participant.vars.get('total_balance_cents', 0)
+
         loser = None
         for player in self.group.get_players():
             if player.participant.vars.get('tokens', getattr(player, 'tokens', 0)) <= 0:
@@ -603,6 +613,9 @@ class FinalPage(Page):
 
         return {
             'final_payment': final_payment,
+            'final_tokens': final_payment,
+            'section_earnings': f'{section_earnings_cents / 100:.2f}',
+            'total_current_balance': f'{total_balance_cents / 100:.2f}',
             'player_number': p.id_in_group,
             'loser_number': loser,
             'game_ended_by_tokens': loser is not None,

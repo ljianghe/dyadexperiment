@@ -126,8 +126,20 @@ class FinalPage(Page):
         return self.participant.vars.get('condition_s_end_round') == self.round_number
 
     def vars_for_template(self):
+        final_tokens = self.participant.vars['condition_s_tokens']
+        section_earnings_cents = int(final_tokens) * 10
+        balance_key = 'red_black_random_section_balance_recorded'
+        if not self.participant.vars.get(balance_key):
+            self.participant.vars['total_balance_cents'] = (
+                self.participant.vars.get('total_balance_cents', 0)
+                + section_earnings_cents
+            )
+            self.participant.vars[balance_key] = True
+        total_balance_cents = self.participant.vars.get('total_balance_cents', 0)
         return {
-            'final_tokens': self.participant.vars['condition_s_tokens'],
+            'final_tokens': final_tokens,
+            'section_earnings': f'{section_earnings_cents / 100:.2f}',
+            'total_current_balance': f'{total_balance_cents / 100:.2f}',
             'historical_id': self.participant.vars['condition_s_comparison_id'],
         }
 
