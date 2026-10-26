@@ -20,3 +20,6 @@ class PlayerBot(Bot):
                 'randomizer_used': False,
                 'randomizer_result': '',
             }
+
+        if self.round_number == 150:
+            yield pages.FinalPage
