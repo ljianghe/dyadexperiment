@@ -93,6 +93,7 @@ class FinalPage(Page):
 
     def vars_for_template(self):
         payment_cents = self.participant.vars.get('r_bonus_cents', 0)
+        misses = self.participant.vars.get('r_misses', 0)
         balance_key = 'r_condition_balance_recorded'
         if not self.participant.vars.get(balance_key):
             self.participant.vars['total_balance_cents'] = (
@@ -102,6 +103,8 @@ class FinalPage(Page):
             self.participant.vars[balance_key] = True
         total_balance_cents = self.participant.vars.get('total_balance_cents', 0)
         return {
+            'correct_predictions': Constants.num_rounds - misses,
+            'total_predictions': Constants.num_rounds,
             'section_earnings': f'{payment_cents / 100:.2f}',
             'total_current_balance': f'{total_balance_cents / 100:.2f}',
         }
