@@ -114,6 +114,10 @@ def _randomizer_retry_vars(player, attempt_key):
         'randomizer_already_used': already_used,
         'persisted_randomizer_result': saved_result if already_used else '',
         'randomizer_used_value': 'True' if already_used else 'False',
+        'randomizer_storage_key': (
+            f'dyad-randomizer:{player.session.code}:'
+            f'{player.participant.code}:{attempt_key}'
+        ),
     }
 
 

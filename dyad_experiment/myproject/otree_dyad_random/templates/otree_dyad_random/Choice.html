@@ -146,13 +146,20 @@
       }());
 
       (function () {
-        const outcome = '{{ randomizer_outcome }}';
+        const serverOutcome = '{{ randomizer_outcome }}';
+        const storageKey = '{{ randomizer_storage_key }}';
+        const storedOutcome = window.sessionStorage.getItem(storageKey);
+        const storedFlipIsValid = storedOutcome === 'Red' || storedOutcome === 'Black';
         const coin = document.getElementById('coin');
         const button = document.getElementById('flip-button');
         const display = document.getElementById('flip-result');
         const usedInput = document.getElementById('randomizer-used');
         const resultInput = document.getElementById('randomizer-result');
-        const alreadyUsed = '{{ randomizer_already_used }}' === 'True';
+        const serverAlreadyUsed = '{{ randomizer_already_used }}' === 'True';
+        const alreadyUsed = serverAlreadyUsed || storedFlipIsValid;
+        const outcome = serverAlreadyUsed
+          ? serverOutcome
+          : (storedFlipIsValid ? storedOutcome : serverOutcome);
         let faceTimer;
 
         function setCoinFace(color) {
@@ -177,6 +184,7 @@
         button.addEventListener('click', function () {
           usedInput.value = 'True';
           resultInput.value = outcome;
+          window.sessionStorage.setItem(storageKey, outcome);
           liveSend({ type: 'randomizer', randomizer_result: outcome });
           button.disabled = true;
           button.textContent = 'Flipping...';
@@ -193,10 +201,16 @@
         });
 
         if (alreadyUsed) {
+          usedInput.value = 'True';
+          resultInput.value = outcome;
+          window.sessionStorage.setItem(storageKey, outcome);
           setCoinFace(outcome);
           button.disabled = true;
           button.textContent = 'Coin flipped';
           display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+          if (!serverAlreadyUsed) {
+            liveSend({ type: 'randomizer', randomizer_result: outcome });
+          }
         }
       }());
   </script>
