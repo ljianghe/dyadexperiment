@@ -19,17 +19,17 @@
       border-radius: 50%;
       color: white;
       background: linear-gradient(135deg, #d9534f 0 49%, #171717 51% 100%);
-      box-shadow: inset 7px 8px 11px rgba(255,255,255,0.24), inset -8px -9px 12px rgba(0,0,0,0.32);
-      filter: drop-shadow(0 7px 5px rgba(0,0,0,0.28));
+      box-shadow: inset 5px 6px 8px rgba(255,255,255,.24), inset -6px -7px 9px rgba(0,0,0,.32);
+      filter: drop-shadow(0 5px 4px rgba(0,0,0,.25));
       font-weight: bold;
       font-size: .78rem;
-      letter-spacing: 0.04em;
+      letter-spacing: 0;
       transform-style: preserve-3d;
     }
     .disc.show-red { background: radial-gradient(circle at 35% 28%, #ffaaa7 0 3%, #e35d59 20%, #b82d29 75%, #8e1c19 100%); }
     .disc.show-black { background: radial-gradient(circle at 35% 28%, #737373 0 3%, #2e2e2e 25%, #111 75%, #000 100%); }
-    .disc.flipping-red { animation: land-red 1.35s cubic-bezier(.18,.75,.28,1) forwards; }
-    .disc.flipping-black { animation: land-black 1.35s cubic-bezier(.18,.75,.28,1) forwards; }
+    .disc.flipping-red { animation: land-red .25s cubic-bezier(.18,.75,.28,1) forwards; }
+    .disc.flipping-black { animation: land-black .25s cubic-bezier(.18,.75,.28,1) forwards; }
     @keyframes land-red {
       0% { transform: translateY(0) rotateY(0deg) rotateZ(0deg); }
       42% { transform: translateY(-28px) rotateY(650deg) rotateZ(8deg); }
@@ -155,7 +155,7 @@
         usedInput.value = 'True';
         resultInput.value = outcome;
         button.disabled = true;
-        button.textContent = 'Randomizing...';
+        button.textContent = 'Flipping...';
         animateDiscFaces();
         disc.classList.add(outcome === 'Red' ? 'flipping-red' : 'flipping-black');
       });
@@ -164,8 +164,8 @@
         window.clearTimeout(faceTimer);
         disc.classList.remove('flipping-red', 'flipping-black');
         setDiscFace(outcome);
-        display.innerHTML = '<strong>Randomizer result: ' + outcome + '</strong>';
-        button.textContent = 'Randomized';
+        display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+        button.textContent = 'Coin flipped';
       });
     }());
   </script>
