@@ -91,10 +91,22 @@ def _choice_and_randomizer_error(values, used_field, result_field):
         return 'The optional Red/Black coin was not recorded correctly. Please try again.'
 
 
+def _randomizer_field_names(attempt_key):
+    if attempt_key in ['practice1', 'practice2', 'practice3']:
+        return (
+            f'{attempt_key}_randomizer_used',
+            f'{attempt_key}_randomizer_result',
+        )
+    return 'randomizer_used', 'randomizer_result'
+
+
 def _randomizer_retry_vars(player, attempt_key):
-    state_key = f'{attempt_key}_randomizer_result'
-    saved_result = player.participant.vars.get(state_key)
-    already_used = saved_result in ['Red', 'Black']
+    used_field, result_field = _randomizer_field_names(attempt_key)
+    saved_result = player.field_maybe_none(result_field)
+    already_used = (
+        bool(player.field_maybe_none(used_field))
+        and saved_result in ['Red', 'Black']
+    )
     return {
         'randomizer_outcome': (
             saved_result if already_used else secrets.choice(['Red', 'Black'])
@@ -109,17 +121,18 @@ def _live_decision(player, data, attempt_key):
     if isinstance(data, dict):
         randomizer_result = data.get('randomizer_result')
         if randomizer_result in ['Red', 'Black']:
-            state_key = f'{attempt_key}_randomizer_result'
-            if player.participant.vars.get(state_key) not in ['Red', 'Black']:
-                player.participant.vars[state_key] = randomizer_result
+            used_field, result_field = _randomizer_field_names(attempt_key)
+            saved_result = player.field_maybe_none(result_field)
+            if saved_result not in ['Red', 'Black']:
+                setattr(player, used_field, True)
+                setattr(player, result_field, randomizer_result)
 
         if data.get('type') == 'randomizer':
+            _, result_field = _randomizer_field_names(attempt_key)
             return {
                 player.id_in_group: {
                     'randomizer_saved': True,
-                    'randomizer_result': player.participant.vars.get(
-                        f'{attempt_key}_randomizer_result'
-                    ),
+                    'randomizer_result': player.field_maybe_none(result_field),
                 }
             }
 
@@ -263,7 +276,6 @@ class PracticeChoice1(PracticeChoice):
         self.participant.vars['practice1_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
-        self.participant.vars.pop('practice1_randomizer_result', None)
 
 
 class PracticeChoice2(PracticeChoice):
@@ -282,7 +294,6 @@ class PracticeChoice2(PracticeChoice):
         self.participant.vars['practice2_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
-        self.participant.vars.pop('practice2_randomizer_result', None)
 
 
 class PracticeChoice3(PracticeChoice):
@@ -301,7 +312,6 @@ class PracticeChoice3(PracticeChoice):
         self.participant.vars['practice3_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
-        self.participant.vars.pop('practice3_randomizer_result', None)
 
 
 class PracticeStartWaitPage(WaitPage):
@@ -406,9 +416,6 @@ class Choice(Page):
     def before_next_page(self, timeout_happened):
         self.participant.vars[f'round{self.round_number}_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
-        )
-        self.participant.vars.pop(
-            f'round{self.round_number}_randomizer_result', None
         )
 
 
