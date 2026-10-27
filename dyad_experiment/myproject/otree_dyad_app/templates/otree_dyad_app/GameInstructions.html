@@ -1,0 +1,13 @@
+{% extends "global/Base.html" %}
+{% block content %}
+<style>body,html{font-size:18px}.debug-info{margin-top:100vh!important}.instructions{max-width:900px;margin:0 auto}.payoff-table{margin:16px auto 0;border-collapse:collapse;font-size:1rem}.payoff-table th,.payoff-table td{border:1px solid #ccc;padding:8px 10px;text-align:center}.continue-wrap{display:flex;justify-content:center;margin-top:20px}.continue-btn{font-size:1.1rem;padding:10px 22px;cursor:pointer}</style>
+<div class="instructions"><h3>Instructions</h3>
+<p><strong>You are Player {{ player_number }}.</strong></p>
+<p>You each start with 20 tokens. When instructed, choose to play either a red or black card without showing or knowing the opponent’s move. You will then reveal to each other what your responses are.</p>
+<p>Depending on the outcomes listed in this figure, either collect or give one token to the opposing player. Your objective is to earn as many tokens as possible.</p>
+<h4>Payoff matrix</h4><table class="payoff-table"><tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr><tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr><tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr></table>
+<p style="font-size:.9em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
+<p>One way to understand this graph: If both players choose the same color, Player 1 earns one point. If they choose different colors, Player 2 earns one point.</p>
+<p>You will play 150 rounds or until one participant loses all their tokens. At the end of the game, you will earn $0.10 for every token you have.</p>
+<form method="post"><div class="continue-wrap"><button type="submit" class="continue-btn">Continue</button></div></form></div>
+{% endblock %}

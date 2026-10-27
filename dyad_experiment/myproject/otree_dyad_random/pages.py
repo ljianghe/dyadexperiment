@@ -174,6 +174,24 @@ class Instructions(Page):
         return self.round_number == 1
 
 
+class GameInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+    def vars_for_template(self):
+        return {'player_number': self.id_in_group}
+
+
+class RandomizerInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+
+class PracticeInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+
 class PracticeChoice(Page):
     form_model = 'player'
     form_fields = ['choice']
@@ -406,6 +424,9 @@ class FinalPage(Page):
 page_sequence = [
     ParticipantID,
     Instructions,
+    GameInstructions,
+    RandomizerInstructions,
+    PracticeInstructions,
     PracticeStartWaitPage1, PracticeChoice1, PracticeWaitPage1, PracticeResults1,
     PracticeStartWaitPage2, PracticeChoice2, PracticeWaitPage2, PracticeResults2,
     PracticeStartWaitPage3, PracticeChoice3, PracticeWaitPage3, PracticeResults3,

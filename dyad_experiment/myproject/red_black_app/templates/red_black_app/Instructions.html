@@ -16,22 +16,6 @@
 
     <p>You will participate in a series of competitive games with the other member of your dyad.</p>
     <p>The final outcome of the games is dependent on the joint choices between both players in a dyad.</p>
-    <p><strong>For this game, you are Player {{ current_player_number }}.</strong></p>
-    <p>You each start with 20 tokens.</p>
-    <p>In each trial you will be asked to make a decision of either “Red” or “Black” and your payoff is shown in the payoff table.</p>
-
-    <h4>Payoff table</h4>
-    <table class="payoff-table">
-      <tr><th></th><th>Player 2: Red</th><th>Player 2: Black</th></tr>
-      <tr><th>Player 1: Red</th><td>1, -1</td><td>-1, 1</td></tr>
-      <tr><th>Player 1: Black</th><td>-1, 1</td><td>1, -1</td></tr>
-    </table>
-    <p style="font-size:0.9em;color:#555">Note: first entry = payoff to Player 1; second entry = payoff to Player 2.</p>
-
-    <p>Depending on the outcomes listed in this figure, the experimenter will move the tokens accordingly on a trial-by-trial basis after all trials have been completed.</p>
-    <p>Your objective is to earn as many tokens as possible.</p>
-    <p>You will play 150 rounds or until one participant loses all their tokens. At the end of the section, you will earn $0.10 for every token you have.</p>
-
     <form method="post">
       {{ csrf_input|safe }}
       <div class="continue-wrap">

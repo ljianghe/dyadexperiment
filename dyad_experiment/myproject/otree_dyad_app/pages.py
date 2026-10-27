@@ -158,6 +158,19 @@ class Instructions(Page):
         return self.round_number == 1
 
 
+class GameInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+    def vars_for_template(self):
+        return {'player_number': self.id_in_group}
+
+
+class PracticeInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+
 # ============================================================
 # PRACTICE CHOICE
 # ============================================================
@@ -634,6 +647,8 @@ page_sequence = [
 
     # Instructions: only displayed in round 1
     Instructions,
+    GameInstructions,
+    PracticeInstructions,
 
     # Practice 1: only displayed in round 1
     PracticeStartWaitPage1,

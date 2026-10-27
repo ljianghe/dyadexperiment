@@ -52,12 +52,28 @@ class Instructions(Page):
         return self.round_number == 1
 
     def vars_for_template(self):
+        return {'csrf_input': _make_csrf_input(self)}
+
+
+class GameInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+    def vars_for_template(self):
         return {
             'csrf_input': _make_csrf_input(self),
             'current_player_number': self.participant.vars.get(
                 'condition_s_new_role', ''
             )[-1:],
         }
+
+
+class RandomizerInstructions(Page):
+    def is_displayed(self):
+        return self.round_number == 1
+
+    def vars_for_template(self):
+        return {'csrf_input': _make_csrf_input(self)}
 
 
 class ComparisonSetup(Page):
@@ -144,4 +160,12 @@ class FinalPage(Page):
         }
 
 
-page_sequence = [ParticipantID, ComparisonSetup, Instructions, Choice, FinalPage]
+page_sequence = [
+    ParticipantID,
+    ComparisonSetup,
+    Instructions,
+    GameInstructions,
+    RandomizerInstructions,
+    Choice,
+    FinalPage,
+]

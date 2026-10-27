@@ -13,6 +13,7 @@ class PlayerBot(Bot):
                 'comparison_entry': '',
             }
             yield pages.Instructions
+            yield pages.GameInstructions
 
         if self.participant.vars.get('condition_s_end_round') is None:
             historical_choice = find_historical_record('162000')['choices'][
