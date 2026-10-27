@@ -53,8 +53,8 @@
     {{ csrf_input|safe }}
 
     <input id="no-response-choice" type="hidden" name="choice" value="NoResponse">
-    <input id="randomizer-used" type="hidden" name="{{ randomizer_used_field }}" value="False">
-    <input id="randomizer-result" type="hidden" name="{{ randomizer_result_field }}" value="">
+    <input id="randomizer-used" type="hidden" name="{{ randomizer_used_field }}" value="{{ randomizer_used_value }}">
+    <input id="randomizer-result" type="hidden" name="{{ randomizer_result_field }}" value="{{ persisted_randomizer_result }}">
     <div class="choice-row">
       <label class="choice red"><input type="radio" name="choice" value="Red"><span>Red</span></label>
       <label class="choice black"><input type="radio" name="choice" value="Black"><span>Black</span></label>
@@ -122,7 +122,13 @@
             document.querySelector('.choice-row').style.pointerEvents = 'none';
             flipButton.disabled = true;
             const selected = document.querySelector('input[type="radio"][name="choice"]:checked');
-            liveSend({ choice: selected ? selected.value : null });
+            const randomizerUsed = document.getElementById('randomizer-used');
+            const randomizerResult = document.getElementById('randomizer-result');
+            liveSend({
+              choice: selected ? selected.value : null,
+              randomizer_used: randomizerUsed.value === 'True',
+              randomizer_result: randomizerResult.value
+            });
           }
         }
 
@@ -146,6 +152,7 @@
         const display = document.getElementById('flip-result');
         const usedInput = document.getElementById('randomizer-used');
         const resultInput = document.getElementById('randomizer-result');
+        const alreadyUsed = '{{ randomizer_already_used }}' === 'True';
         let faceTimer;
 
         function setCoinFace(color) {
@@ -170,6 +177,7 @@
         button.addEventListener('click', function () {
           usedInput.value = 'True';
           resultInput.value = outcome;
+          liveSend({ type: 'randomizer', randomizer_result: outcome });
           button.disabled = true;
           button.textContent = 'Flipping...';
           animateCoinFaces();
@@ -183,6 +191,13 @@
           display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
           button.textContent = 'Coin flipped';
         });
+
+        if (alreadyUsed) {
+          setCoinFace(outcome);
+          button.disabled = true;
+          button.textContent = 'Coin flipped';
+          display.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+        }
       }());
   </script>
 {% endblock %}

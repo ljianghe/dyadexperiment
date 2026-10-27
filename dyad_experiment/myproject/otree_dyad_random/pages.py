@@ -91,7 +91,38 @@ def _choice_and_randomizer_error(values, used_field, result_field):
         return 'The optional Red/Black coin was not recorded correctly. Please try again.'
 
 
+def _randomizer_retry_vars(player, attempt_key):
+    state_key = f'{attempt_key}_randomizer_result'
+    saved_result = player.participant.vars.get(state_key)
+    already_used = saved_result in ['Red', 'Black']
+    return {
+        'randomizer_outcome': (
+            saved_result if already_used else secrets.choice(['Red', 'Black'])
+        ),
+        'randomizer_already_used': already_used,
+        'persisted_randomizer_result': saved_result if already_used else '',
+        'randomizer_used_value': 'True' if already_used else 'False',
+    }
+
+
 def _live_decision(player, data, attempt_key):
+    if isinstance(data, dict):
+        randomizer_result = data.get('randomizer_result')
+        if randomizer_result in ['Red', 'Black']:
+            state_key = f'{attempt_key}_randomizer_result'
+            if player.participant.vars.get(state_key) not in ['Red', 'Black']:
+                player.participant.vars[state_key] = randomizer_result
+
+        if data.get('type') == 'randomizer':
+            return {
+                player.id_in_group: {
+                    'randomizer_saved': True,
+                    'randomizer_result': player.participant.vars.get(
+                        f'{attempt_key}_randomizer_result'
+                    ),
+                }
+            }
+
     choice = data.get('choice') if isinstance(data, dict) else None
     if choice not in ['Red', 'Black']:
         choice = None
@@ -201,6 +232,7 @@ class PracticeChoice(Page):
         return self.round_number == 1
 
     def practice_vars(self, practice_round_number):
+        attempt_key = f'practice{practice_round_number}'
         return {
             'round_number': self.round_number,
             'practice_round_number': practice_round_number,
@@ -210,7 +242,7 @@ class PracticeChoice(Page):
             'csrf_input': _make_csrf_input(self),
             'is_practice': True,
             'practice_round': practice_round_number,
-            'randomizer_outcome': secrets.choice(['Red', 'Black']),
+            **_randomizer_retry_vars(self, attempt_key),
             'randomizer_used_field': f'practice{practice_round_number}_randomizer_used',
             'randomizer_result_field': f'practice{practice_round_number}_randomizer_result',
         }
@@ -231,6 +263,7 @@ class PracticeChoice1(PracticeChoice):
         self.participant.vars['practice1_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
+        self.participant.vars.pop('practice1_randomizer_result', None)
 
 
 class PracticeChoice2(PracticeChoice):
@@ -249,6 +282,7 @@ class PracticeChoice2(PracticeChoice):
         self.participant.vars['practice2_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
+        self.participant.vars.pop('practice2_randomizer_result', None)
 
 
 class PracticeChoice3(PracticeChoice):
@@ -267,6 +301,7 @@ class PracticeChoice3(PracticeChoice):
         self.participant.vars['practice3_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
         )
+        self.participant.vars.pop('practice3_randomizer_result', None)
 
 
 class PracticeStartWaitPage(WaitPage):
@@ -350,6 +385,7 @@ class Choice(Page):
     live_method = _real_trial_live
 
     def vars_for_template(self):
+        attempt_key = f'round{self.round_number}'
         return {
             'round_number': self.round_number,
             'max_rounds': Constants.num_rounds,
@@ -357,7 +393,7 @@ class Choice(Page):
             'csrf_input': _make_csrf_input(self),
             'is_practice': False,
             'practice_round': None,
-            'randomizer_outcome': secrets.choice(['Red', 'Black']),
+            **_randomizer_retry_vars(self, attempt_key),
             'randomizer_used_field': 'randomizer_used',
             'randomizer_result_field': 'randomizer_result',
         }
@@ -370,6 +406,9 @@ class Choice(Page):
     def before_next_page(self, timeout_happened):
         self.participant.vars[f'round{self.round_number}_no_response'] = (
             self.field_maybe_none('choice') == 'NoResponse'
+        )
+        self.participant.vars.pop(
+            f'round{self.round_number}_randomizer_result', None
         )
 
 
