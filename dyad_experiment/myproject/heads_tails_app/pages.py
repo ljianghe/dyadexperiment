@@ -64,15 +64,9 @@ class Choice(Page):
             self.participant.vars.get('r_predictor_state'), choice_numeric
         )
         self.participant.vars['r_predictor_state'] = state
-        self.choice_numeric = choice_numeric
-        self.predictor_context = audit['context']
-        self.predictor_prediction = audit['prediction']
-        self.predictor_miss = audit['missed']
-        self.cumulative_predictor_misses = audit['misses']
 
         if self.round_number == Constants.num_rounds:
             payment_cents = bonus_cents(audit['misses'])
-            self.r_bonus_cents = payment_cents
             self.participant.vars['r_misses'] = audit['misses']
             self.participant.vars['r_bonus_cents'] = payment_cents
 

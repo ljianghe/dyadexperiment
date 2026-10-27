@@ -1,6 +1,7 @@
 from otree.api import (
     models, widgets, BaseConstants, BaseSubsession, BaseGroup, BasePlayer,
 )
+from r_condition_scoring import bonus_cents, score_choice
 
 
 class Constants(BaseConstants):
@@ -29,9 +30,44 @@ class Player(BasePlayer):
     )
     randomizer_used = models.BooleanField(initial=False)
     randomizer_result = models.StringField(blank=True)
-    choice_numeric = models.IntegerField(blank=True)
-    predictor_context = models.IntegerField(blank=True)
-    predictor_prediction = models.IntegerField(blank=True)
-    predictor_miss = models.IntegerField(blank=True)
-    cumulative_predictor_misses = models.IntegerField(blank=True)
-    r_bonus_cents = models.IntegerField(blank=True)
+
+
+def custom_export_scored(players):
+    """Reconstruct predictor scores from saved choices without extra DB columns."""
+    yield [
+        'session_code', 'participant_code', 'study_participant_id',
+        'round_number', 'choice', 'response_time_ms',
+        'randomizer_used', 'randomizer_result', 'choice_numeric',
+        'predictor_context', 'predictor_prediction', 'predictor_miss',
+        'cumulative_predictor_misses', 'r_bonus_cents',
+    ]
+    states = {}
+    ordered_players = sorted(
+        players, key=lambda p: (p.session_id, p.participant_id, p.round_number)
+    )
+    for player in ordered_players:
+        key = (player.session_id, player.participant_id)
+        if player.choice not in ('Heads', 'Tails'):
+            yield [
+                player.session.code, player.participant.code,
+                player.study_participant_id, player.round_number,
+                player.choice, player.response_time_ms,
+                player.randomizer_used, player.randomizer_result,
+                '', '', '', '', '', '',
+            ]
+            continue
+        choice_numeric = 1 if player.choice == 'Heads' else 0
+        state, audit = score_choice(states.get(key), choice_numeric)
+        states[key] = state
+        payment_cents = (
+            bonus_cents(audit['misses'])
+            if player.round_number == Constants.num_rounds else ''
+        )
+        yield [
+            player.session.code, player.participant.code,
+            player.study_participant_id, player.round_number,
+            player.choice, player.response_time_ms,
+            player.randomizer_used, player.randomizer_result, choice_numeric,
+            audit['context'], audit['prediction'], audit['missed'],
+            audit['misses'], payment_cents,
+        ]
