@@ -77,6 +77,18 @@ SESSION_CONFIGS = [
 
 ROOMS = [
     dict(
+        name='d_standalone',
+        display_name='D - Dyad standalone',
+    ),
+    dict(
+        name='s_standalone',
+        display_name='S - Red/Black standalone',
+    ),
+    dict(
+        name='r_standalone',
+        display_name='R - Heads/Tails standalone',
+    ),
+    dict(
         name='room_1',
         display_name='Room 1 - No randomizer - D, H/T, R/B',
     ),
