@@ -42,39 +42,27 @@ SESSION_CONFIGS = [
 ROOMS = [
     dict(
         name='d_no_randomizer',
-        display_name='D - Dyad - No randomizer (4 monitors)',
-        participant_label_file='_rooms/d_no_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='D - Dyad - No randomizer',
     ),
     dict(
         name='d_randomizer',
-        display_name='D - Dyad - Randomizer (4 monitors)',
-        participant_label_file='_rooms/d_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='D - Dyad - Randomizer',
     ),
     dict(
         name='s_no_randomizer',
-        display_name='S - Red/Black - No randomizer (4 monitors)',
-        participant_label_file='_rooms/s_no_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='S - Red/Black - No randomizer',
     ),
     dict(
         name='s_randomizer',
-        display_name='S - Red/Black - Randomizer (4 monitors)',
-        participant_label_file='_rooms/s_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='S - Red/Black - Randomizer',
     ),
     dict(
         name='r_no_randomizer',
-        display_name='R - Heads/Tails - No randomizer (4 monitors)',
-        participant_label_file='_rooms/r_no_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='R - Heads/Tails - No randomizer',
     ),
     dict(
         name='r_randomizer',
-        display_name='R - Heads/Tails - Randomizer (4 monitors)',
-        participant_label_file='_rooms/r_randomizer_monitors.txt',
-        use_secure_urls=True,
+        display_name='R - Heads/Tails - Randomizer',
     ),
 ]
 
