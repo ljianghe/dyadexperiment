@@ -42,15 +42,21 @@ SESSION_CONFIGS = [
 ROOMS = [
     dict(
         name='d_standalone',
-        display_name='D - Dyad standalone',
+        display_name='D - Dyad (4 monitors)',
+        participant_label_file='_rooms/d_monitors.txt',
+        use_secure_urls=True,
     ),
     dict(
         name='s_standalone',
-        display_name='S - Red/Black standalone',
+        display_name='S - Red/Black (4 monitors)',
+        participant_label_file='_rooms/s_monitors.txt',
+        use_secure_urls=True,
     ),
     dict(
         name='r_standalone',
-        display_name='R - Heads/Tails standalone',
+        display_name='R - Heads/Tails (4 monitors)',
+        participant_label_file='_rooms/r_monitors.txt',
+        use_secure_urls=True,
     ),
 ]
 
