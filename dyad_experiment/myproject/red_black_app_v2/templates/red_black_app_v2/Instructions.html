@@ -1,0 +1,26 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .intro { max-width: 850px; margin: 0 auto; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 24px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+    .payoff-table { margin-top: 16px; border-collapse: collapse; font-size: 1rem; }
+    .payoff-table th, .payoff-table td { border: 1px solid #ccc; padding: 6px 8px; }
+  </style>
+
+  <div class="intro">
+    <h3>Instructions</h3>
+
+    <p>You will participate in a series of competitive games with the other member of your dyad.</p>
+    <p>The final outcome of the games is dependent on the joint choices between both players in a dyad.</p>
+    <form method="post">
+      {{ csrf_input|safe }}
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Continue</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

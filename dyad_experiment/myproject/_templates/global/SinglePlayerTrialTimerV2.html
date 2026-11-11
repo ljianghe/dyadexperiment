@@ -1,0 +1,101 @@
+<style>
+  .single-trial-timer { display: inline-block; margin: 0; padding: 7px 12px; color: #58636f; background: #f2f4f6; border-radius: 14px; font-size: 1rem; font-weight: 500; text-align: center; }
+  .single-trial-timer-note { margin: 4px 0 0; color: #555; font-size: .95rem; text-align: center; }
+  .single-retry-warning { max-width: 620px; margin: 12px auto 0; padding: 14px 18px; color: #604b16; background: #fff8df; border: 1px solid #e4cc77; border-radius: 8px; text-align: center; }
+</style>
+
+<div id="single-trial-timer-area">
+  <p class="single-trial-timer">Your response will be recorded in <span id="single-trial-seconds">3</span> seconds.</p>
+  <p class="single-trial-timer-note">Your current choice will submit automatically.</p>
+</div>
+<div id="single-retry-warning" class="single-retry-warning" hidden role="alert">
+  <strong>Warning.</strong> You did not select a response. This trial will be retried.
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const decisionWindowMs = 3000;
+    const retryWarningMs = 3000;
+    const form = document.getElementById('form');
+    const timerArea = document.getElementById('single-trial-timer-area');
+    const timerDisplay = document.getElementById('single-trial-seconds');
+    const retryWarning = document.getElementById('single-retry-warning');
+    const choiceRow = document.querySelector('.choice-row');
+    const choices = Array.from(document.querySelectorAll('input[type="radio"][name="choice"]'));
+    const responseTimeInput = document.getElementById('response-time-ms');
+    const randomizerButton = document.querySelector('[data-trial-randomizer-button]');
+    const randomizerUsedInput = document.getElementById('randomizer-used');
+    let attemptStartedAt = performance.now();
+    let deadline = attemptStartedAt + decisionWindowMs;
+    let submissionAllowed = false;
+    let attemptEnded = false;
+
+    function setControlsEnabled(enabled) {
+      choices.forEach(function (choice) { choice.disabled = !enabled; });
+      if (choiceRow) choiceRow.style.pointerEvents = enabled ? '' : 'none';
+      if (randomizerButton) {
+        const alreadyUsed = randomizerUsedInput && randomizerUsedInput.value === 'True';
+        randomizerButton.disabled = !enabled || alreadyUsed;
+      }
+    }
+
+    function startAttempt() {
+      attemptStartedAt = performance.now();
+      deadline = attemptStartedAt + decisionWindowMs;
+      attemptEnded = false;
+      submissionAllowed = false;
+      if (responseTimeInput) responseTimeInput.value = '';
+      retryWarning.hidden = true;
+      timerArea.hidden = false;
+      timerDisplay.textContent = '3';
+      setControlsEnabled(true);
+      window.requestAnimationFrame(updateTimer);
+    }
+
+    choices.forEach(function (choice) {
+      choice.addEventListener('change', function () {
+        if (responseTimeInput) {
+          responseTimeInput.value = Math.max(
+            0,
+            Math.round(performance.now() - attemptStartedAt)
+          );
+        }
+      });
+    });
+
+    if (form) {
+      form.addEventListener('submit', function (event) {
+        if (!submissionAllowed) event.preventDefault();
+      });
+    }
+
+    function updateTimer() {
+      if (attemptEnded) return;
+      const remaining = Math.max(0, deadline - performance.now());
+      timerDisplay.textContent = Math.ceil(remaining / 1000).toString();
+      if (remaining > 0) {
+        window.requestAnimationFrame(updateTimer);
+        return;
+      }
+
+      attemptEnded = true;
+      const selected = choices.find(function (choice) { return choice.checked; });
+
+      if (selected) {
+        if (choiceRow) choiceRow.style.pointerEvents = 'none';
+        if (randomizerButton) randomizerButton.disabled = true;
+        submissionAllowed = true;
+        timerDisplay.textContent = '0';
+        form.requestSubmit();
+        return;
+      }
+
+      setControlsEnabled(false);
+      timerArea.hidden = true;
+      retryWarning.hidden = false;
+      window.setTimeout(startAttempt, retryWarningMs);
+    }
+
+    startAttempt();
+  });
+</script>

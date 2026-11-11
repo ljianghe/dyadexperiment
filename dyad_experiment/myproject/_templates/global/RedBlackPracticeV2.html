@@ -1,0 +1,76 @@
+<style>
+  .practice-randomizer { max-width: 360px; margin: 24px auto; padding: 20px; text-align: center; background: #f3f6f8; border: 1px solid #ccd5dc; border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .practice-disc-stage { height: 110px; display: flex; align-items: center; justify-content: center; perspective: 700px; }
+  .practice-disc { width: 88px; height: 88px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 3px ridge #899198; border-radius: 50%; color: white; background: linear-gradient(135deg, #d9534f 0 49%, #171717 51% 100%); box-shadow: inset 5px 6px 8px rgba(255,255,255,.24), inset -6px -7px 9px rgba(0,0,0,.32); filter: drop-shadow(0 5px 4px rgba(0,0,0,.25)); font-weight: bold; font-size: .82rem; transform-style: preserve-3d; }
+  .practice-disc.show-red { background: radial-gradient(circle at 35% 28%, #ffaaa7 0 3%, #e35d59 20%, #b82d29 75%, #8e1c19 100%); }
+  .practice-disc.show-black { background: radial-gradient(circle at 35% 28%, #737373 0 3%, #2e2e2e 25%, #111 75%, #000 100%); }
+  .practice-disc.flipping-red { animation: practice-red .25s cubic-bezier(.18,.75,.28,1) forwards; }
+  .practice-disc.flipping-black { animation: practice-black .25s cubic-bezier(.18,.75,.28,1) forwards; }
+  @keyframes practice-red { 0% { transform: translateY(0) rotateY(0deg); } 45% { transform: translateY(-28px) rotateY(650deg); } 100% { transform: translateY(0) rotateY(1440deg); } }
+  @keyframes practice-black { 0% { transform: translateY(0) rotateY(0deg); } 45% { transform: translateY(-28px) rotateY(730deg); } 100% { transform: translateY(0) rotateY(1620deg); } }
+  @media (prefers-reduced-motion: reduce) { .practice-disc.flipping-red, .practice-disc.flipping-black { animation-duration: 0.01ms; } }
+  .practice-flip-btn { font-size: 1.05rem; padding: 9px 18px; cursor: pointer; }
+  .practice-flip-btn:disabled, #practice-continue:disabled { cursor: default; opacity: .55; }
+  .practice-status { min-height: 1.5em; margin: 12px 0 0; }
+  .practice-count { margin: 5px 0 0; color: #4a555d; }
+</style>
+
+<div class="practice-randomizer">
+  <div class="practice-disc-stage" aria-hidden="true"><div id="practice-disc" class="practice-disc">RED / BLACK</div></div>
+  <button id="practice-flip" type="button" class="practice-flip-btn">Try the randomizer</button>
+  <p id="practice-result" class="practice-status" aria-live="polite">Complete 5 practice flips to continue.</p>
+  <p id="practice-count" class="practice-count">0 of 5 completed</p>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const requiredFlips = 5;
+    const outcomes = '{{ practice_randomizer_outcomes }}'.split(',');
+    const disc = document.getElementById('practice-disc');
+    const flipButton = document.getElementById('practice-flip');
+    const continueButton = document.getElementById('practice-continue');
+    const result = document.getElementById('practice-result');
+    const countDisplay = document.getElementById('practice-count');
+    let completedFlips = 0;
+    let isFlipping = false;
+    let outcome = '';
+    let fallbackTimer;
+
+    function finishFlip() {
+      if (!isFlipping) return;
+      isFlipping = false;
+      window.clearTimeout(fallbackTimer);
+      disc.classList.remove('flipping-red', 'flipping-black', 'show-red', 'show-black');
+      disc.classList.add(outcome === 'Red' ? 'show-red' : 'show-black');
+      disc.textContent = outcome.toUpperCase();
+      completedFlips += 1;
+      result.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+      countDisplay.textContent = completedFlips + ' of ' + requiredFlips + ' completed';
+      if (completedFlips >= requiredFlips) {
+        flipButton.disabled = true;
+        flipButton.textContent = 'Practice complete';
+        continueButton.disabled = false;
+        result.innerHTML += '<br>You may now continue.';
+      } else {
+        flipButton.disabled = false;
+        flipButton.textContent = 'Try again (' + (requiredFlips - completedFlips) + ' remaining)';
+      }
+    }
+
+    flipButton.addEventListener('click', function () {
+      if (isFlipping || completedFlips >= requiredFlips) return;
+      isFlipping = true;
+      outcome = outcomes[completedFlips];
+      flipButton.disabled = true;
+      flipButton.textContent = 'Flipping...';
+      result.textContent = 'Flipping...';
+      disc.classList.remove('show-red', 'show-black', 'flipping-red', 'flipping-black');
+      disc.textContent = 'RED / BLACK';
+      void disc.offsetWidth;
+      disc.classList.add(outcome === 'Red' ? 'flipping-red' : 'flipping-black');
+      fallbackTimer = window.setTimeout(finishFlip, 350);
+    });
+
+    disc.addEventListener('animationend', finishFlip);
+  });
+</script>

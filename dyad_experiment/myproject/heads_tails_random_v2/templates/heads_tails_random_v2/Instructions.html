@@ -1,0 +1,24 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .instructions { max-width: 850px; margin: 0 auto; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 24px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <div class="instructions">
+    <h3>Instructions</h3>
+    <p>Simulate 150 tosses of a fair coin. Afterward, a computer will try to predict each toss from the ones before it. Against a real coin it would be right about half the time. You will earn a bonus of $0.12 for each wrong prediction beyond the first 60.</p>
+    <p>On each round, you may use the optional fair coin-flip device before choosing Heads or Tails. You do not have to use it, and its result does not automatically select your response.</p>
+    <p>You may try the randomizer up to five times before continuing. This practice is optional, and the demonstration flips do not affect the trials.</p>
+
+    {% include "global/HeadsTailsPracticeV2.html" %}
+
+    <div class="continue-wrap">
+      <button id="practice-continue" type="submit" class="continue-btn">Continue</button>
+    </div>
+  </div>
+{% endblock %}

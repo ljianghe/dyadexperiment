@@ -1,0 +1,33 @@
+{% extends "global/Base.html" %}
+
+{% block content %}
+  <style>
+    body, html { font-size: 18px; }
+    .debug-info { margin-top: 100vh !important; }
+    .results-text { font-size: 1.1rem; }
+    .continue-wrap { display: flex; justify-content: center; margin-top: 18px; }
+    .continue-btn { font-size: 1.1rem; padding: 10px 22px; cursor: pointer; }
+  </style>
+
+  <h3>Round {{ round_number }} of {{ max_rounds }}</h3>
+  <p class="results-text"><strong>Your choice:</strong> {{ your_choice }}</p>
+  <p class="results-text"><strong>Coin flip:</strong> {{ outcome }}</p>
+
+  {% if correct %}
+    <p class="results-text"><strong>You were correct.</strong></p>
+  {% else %}
+    <p class="results-text"><strong>You were incorrect.</strong></p>
+  {% endif %}
+
+  <p class="results-text"><strong>Correct so far:</strong> {{ total_correct }}</p>
+
+  {% if round_number < max_rounds %}
+    <form method="get">
+      <div class="continue-wrap">
+        <button type="submit" class="continue-btn">Continue</button>
+      </div>
+    </form>
+  {% else %}
+    <p class="results-text"><strong>Experiment complete. Thank you for participating.</strong></p>
+  {% endif %}
+{% endblock %}

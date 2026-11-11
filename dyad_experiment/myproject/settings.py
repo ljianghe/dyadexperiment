@@ -37,6 +37,42 @@ SESSION_CONFIGS = [
         num_demo_participants=1,
         app_sequence=['red_black_random'],
     ),
+    dict(
+        name='dyad_v2',
+        display_name='V2 - Dyad - No randomizer',
+        num_demo_participants=2,
+        app_sequence=['otree_dyad_app_v2'],
+    ),
+    dict(
+        name='dyad_random_v2',
+        display_name='V2 - Dyad - Randomizer',
+        num_demo_participants=2,
+        app_sequence=['otree_dyad_random_v2'],
+    ),
+    dict(
+        name='red_black_v2',
+        display_name='V2 - Red and Black - No randomizer',
+        num_demo_participants=1,
+        app_sequence=['red_black_app_v2'],
+    ),
+    dict(
+        name='red_black_random_v2',
+        display_name='V2 - Red and Black - Randomizer',
+        num_demo_participants=1,
+        app_sequence=['red_black_random_v2'],
+    ),
+    dict(
+        name='heads_tails_v2',
+        display_name='V2 - Heads and Tails - No randomizer',
+        num_demo_participants=1,
+        app_sequence=['heads_tails_app_v2'],
+    ),
+    dict(
+        name='heads_tails_random_v2',
+        display_name='V2 - Heads and Tails - Randomizer',
+        num_demo_participants=1,
+        app_sequence=['heads_tails_random_v2'],
+    ),
 ]
 
 ROOMS = [
@@ -63,6 +99,30 @@ ROOMS = [
     dict(
         name='r_randomizer',
         display_name='R - Heads/Tails - Randomizer',
+    ),
+    dict(
+        name='d_no_randomizer_v2',
+        display_name='V2 - D - Dyad - No randomizer',
+    ),
+    dict(
+        name='d_randomizer_v2',
+        display_name='V2 - D - Dyad - Randomizer',
+    ),
+    dict(
+        name='s_no_randomizer_v2',
+        display_name='V2 - S - Red/Black - No randomizer',
+    ),
+    dict(
+        name='s_randomizer_v2',
+        display_name='V2 - S - Red/Black - Randomizer',
+    ),
+    dict(
+        name='r_no_randomizer_v2',
+        display_name='V2 - R - Heads/Tails - No randomizer',
+    ),
+    dict(
+        name='r_randomizer_v2',
+        display_name='V2 - R - Heads/Tails - Randomizer',
     ),
 ]
 

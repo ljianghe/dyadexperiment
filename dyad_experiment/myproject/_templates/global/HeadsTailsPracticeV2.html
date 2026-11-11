@@ -1,0 +1,82 @@
+<style>
+  .practice-randomizer { max-width: 360px; margin: 24px auto; padding: 20px; text-align: center; background: #f3f6f8; border: 1px solid #ccd5dc; border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+  .practice-coin-stage { height: 110px; display: flex; align-items: center; justify-content: center; perspective: 700px; }
+  .practice-coin { position: relative; width: 88px; height: 88px; transform-style: preserve-3d; filter: drop-shadow(0 7px 5px rgba(0,0,0,.28)); }
+  .practice-coin-face { position: absolute; inset: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 3px ridge #7d878e; border-radius: 50%; backface-visibility: hidden; color: #30383e; font-family: Georgia, serif; font-size: 1.9rem; font-weight: bold; text-shadow: 0 1px 0 #fff; background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.85) 0 4%, transparent 5%), radial-gradient(circle at 38% 35%, #f8fbfc 0, #cbd2d7 48%, #7a858d 78%, #e8edf0 100%); box-shadow: inset 0 0 0 3px #edf2f5, inset 0 0 0 7px #737d84, inset 8px 9px 12px rgba(255,255,255,.35), inset -8px -9px 12px rgba(35,43,48,.32); }
+  .practice-coin-heads { transform: rotateY(0deg) translateZ(2px); }
+  .practice-coin-tails { transform: rotateY(180deg) translateZ(2px); }
+  .practice-coin.landed-heads { transform: rotateY(0deg); }
+  .practice-coin.landed-tails { transform: rotateY(180deg); }
+  .practice-coin.flipping-heads { animation: practice-heads .25s cubic-bezier(.18,.75,.28,1) forwards; }
+  .practice-coin.flipping-tails { animation: practice-tails .25s cubic-bezier(.18,.75,.28,1) forwards; }
+  @keyframes practice-heads { 0% { transform: translateY(0) rotateY(var(--practice-start-angle, 0deg)); } 45% { transform: translateY(-28px) rotateY(650deg); } 100% { transform: translateY(0) rotateY(1440deg); } }
+  @keyframes practice-tails { 0% { transform: translateY(0) rotateY(var(--practice-start-angle, 0deg)); } 45% { transform: translateY(-28px) rotateY(730deg); } 100% { transform: translateY(0) rotateY(1620deg); } }
+  @media (prefers-reduced-motion: reduce) { .practice-coin.flipping-heads, .practice-coin.flipping-tails { animation-duration: 0.01ms; } }
+  .practice-flip-btn { font-size: 1.05rem; padding: 9px 18px; cursor: pointer; }
+  .practice-flip-btn:disabled, #practice-continue:disabled { cursor: default; opacity: .55; }
+  .practice-status { min-height: 1.5em; margin: 12px 0 0; }
+  .practice-count { margin: 5px 0 0; color: #4a555d; }
+</style>
+
+<div class="practice-randomizer">
+  <div class="practice-coin-stage" aria-hidden="true">
+    <div id="practice-coin" class="practice-coin landed-heads">
+      <div class="practice-coin-face practice-coin-heads">H</div>
+      <div class="practice-coin-face practice-coin-tails">T</div>
+    </div>
+  </div>
+  <button id="practice-flip" type="button" class="practice-flip-btn">Try the randomizer</button>
+  <p id="practice-result" class="practice-status" aria-live="polite">Optional practice: try up to 5 flips.</p>
+  <p id="practice-count" class="practice-count">0 of 5 optional flips completed</p>
+</div>
+
+<script>
+  window.addEventListener('DOMContentLoaded', function () {
+    const requiredFlips = 5;
+    const outcomes = '{{ practice_randomizer_outcomes }}'.split(',');
+    const coin = document.getElementById('practice-coin');
+    const flipButton = document.getElementById('practice-flip');
+    const result = document.getElementById('practice-result');
+    const countDisplay = document.getElementById('practice-count');
+    let completedFlips = 0;
+    let isFlipping = false;
+    let outcome = '';
+    let fallbackTimer;
+
+    function finishFlip() {
+      if (!isFlipping) return;
+      isFlipping = false;
+      window.clearTimeout(fallbackTimer);
+      coin.classList.remove('flipping-heads', 'flipping-tails', 'landed-heads', 'landed-tails');
+      coin.classList.add(outcome === 'Heads' ? 'landed-heads' : 'landed-tails');
+      completedFlips += 1;
+      result.innerHTML = '<strong>Coin flip: ' + outcome + '</strong>';
+      countDisplay.textContent = completedFlips + ' of ' + requiredFlips + ' optional flips completed';
+      if (completedFlips >= requiredFlips) {
+        flipButton.disabled = true;
+        flipButton.textContent = 'Practice complete';
+        result.innerHTML += '<br>Optional practice complete.';
+      } else {
+        flipButton.disabled = false;
+        flipButton.textContent = 'Try again (' + (requiredFlips - completedFlips) + ' remaining)';
+      }
+    }
+
+    flipButton.addEventListener('click', function () {
+      if (isFlipping || completedFlips >= requiredFlips) return;
+      isFlipping = true;
+      outcome = outcomes[completedFlips];
+      const startsOnTails = coin.classList.contains('landed-tails');
+      coin.style.setProperty('--practice-start-angle', startsOnTails ? '180deg' : '0deg');
+      coin.classList.remove('landed-heads', 'landed-tails', 'flipping-heads', 'flipping-tails');
+      flipButton.disabled = true;
+      flipButton.textContent = 'Flipping...';
+      result.textContent = 'Flipping...';
+      void coin.offsetWidth;
+      coin.classList.add(outcome === 'Heads' ? 'flipping-heads' : 'flipping-tails');
+      fallbackTimer = window.setTimeout(finishFlip, 350);
+    });
+
+    coin.addEventListener('animationend', finishFlip);
+  });
+</script>
