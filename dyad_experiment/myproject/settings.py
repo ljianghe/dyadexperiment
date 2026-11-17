@@ -73,6 +73,18 @@ SESSION_CONFIGS = [
         num_demo_participants=1,
         app_sequence=['heads_tails_random_v2'],
     ),
+    dict(
+        name='red_black_v3',
+        display_name='V3 - Red and Black - No randomizer - 150 rounds',
+        num_demo_participants=1,
+        app_sequence=['red_black_app_v3'],
+    ),
+    dict(
+        name='red_black_random_v3',
+        display_name='V3 - Red and Black - Randomizer - 150 rounds',
+        num_demo_participants=1,
+        app_sequence=['red_black_random_v3'],
+    ),
 ]
 
 ROOMS = [
@@ -123,6 +135,14 @@ ROOMS = [
     dict(
         name='r_randomizer_v2',
         display_name='V2 - R - Heads/Tails - Randomizer',
+    ),
+    dict(
+        name='s_no_randomizer_v3',
+        display_name='V3 - S - Red/Black - No randomizer - 150 rounds',
+    ),
+    dict(
+        name='s_randomizer_v3',
+        display_name='V3 - S - Red/Black - Randomizer - 150 rounds',
     ),
 ]
 

@@ -163,3 +163,51 @@ def score_round(player, start_tokens=20):
 
     if tokens <= 0 or historical_tokens <= 0 or player.round_number == 150:
         participant.vars['condition_s_end_round'] = player.round_number
+
+
+def score_round_full_150_freeze(player, start_tokens=20):
+    """Score all 150 rounds while freezing balances once either side reaches 0."""
+    participant = player.participant
+    choices = participant.vars['condition_s_historical_choices']
+    historical_choice = choices[player.round_number - 1]
+    new_role = participant.vars['condition_s_new_role']
+    is_match = player.choice == historical_choice
+
+    if new_role == 'P1':
+        hypothetical_payoff = 1 if is_match else -1
+    else:
+        hypothetical_payoff = -1 if is_match else 1
+
+    tokens = participant.vars.get('condition_s_tokens', start_tokens)
+    historical_tokens = participant.vars.get(
+        'condition_s_historical_tokens', start_tokens
+    )
+    balance_frozen = participant.vars.get('condition_s_balance_frozen', False)
+
+    if balance_frozen:
+        applied_payoff = 0
+    else:
+        applied_payoff = hypothetical_payoff
+        tokens += applied_payoff
+        historical_tokens -= applied_payoff
+        if tokens <= 0 or historical_tokens <= 0:
+            # The first boundary hit is exactly 0/40 because payoffs change by 1.
+            tokens = max(0, min(2 * start_tokens, tokens))
+            historical_tokens = max(0, min(2 * start_tokens, historical_tokens))
+            participant.vars['condition_s_balance_frozen'] = True
+            participant.vars['condition_s_zero_round'] = player.round_number
+
+    player.historical_choice = historical_choice
+    player.round_payoff = applied_payoff
+    player.hypothetical_round_payoff = hypothetical_payoff
+    player.balance_frozen = participant.vars.get(
+        'condition_s_balance_frozen', False
+    )
+    player.tokens = tokens
+    player.historical_tokens = historical_tokens
+    participant.vars['condition_s_tokens'] = tokens
+    participant.vars['condition_s_historical_tokens'] = historical_tokens
+
+    # Keep Choice visible through round 150, then show the final payment page.
+    if player.round_number == 150:
+        participant.vars['condition_s_end_round'] = player.round_number
